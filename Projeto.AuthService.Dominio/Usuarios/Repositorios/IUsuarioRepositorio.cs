@@ -16,6 +16,7 @@ namespace Projeto.AuthService.Dominio.Usuarios.Repositorios
         Task<Usuario> BuscarAsync(Expression<Func<Usuario, string>> func, string atributo);
         Task DeletarAsync(Guid guid, CancellationToken cancellationToken = default);
         Task InserirAsync(Usuario usuario, CancellationToken cancellationToken = default);
+        Task EditarAsync(Usuario usuario, CancellationToken cancellationToken = default);
         Task<PaginacaoConsulta<Usuario>> ListarAsync(CancellationToken cancellationToken = default);
         string RedisBuscar(string chave);
         Task RedisDeletarAsync(string chave);

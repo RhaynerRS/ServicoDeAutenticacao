@@ -28,6 +28,7 @@ namespace Projeto.AuthService.Aplicacao.Usuarios.Servicos
 
         public async Task CadastrarUsuarioAsync(UsuarioRequest usuario, CancellationToken cancellation = default)
         {
+            await usuarioServico.VerificaDuplicidadeEmailAsync(usuario.Email);
             Usuario usuarioParaCadastrar = new(usuario.Name, usuario.Password, RoleEnum.DefaultRoleUser.ToString(), usuario.Email);
             await usuarioRepositorio.InserirAsync(usuarioParaCadastrar, cancellation);
         }
@@ -57,6 +58,38 @@ namespace Projeto.AuthService.Aplicacao.Usuarios.Servicos
 
             var key = $"session:{userId}:{jti}";
             await usuarioRepositorio.RedisDeletarAsync(key);
+        }
+
+        public async Task DeletaUsuarioAsync(Guid guid, CancellationToken cancellation)
+        {
+            string token = httpContextAccessor.HttpContext.Request.Headers["Authorization"].FirstOrDefault().Replace("Bearer ", "");
+            var handler = new JwtSecurityTokenHandler();
+
+            var jwt = handler.ReadJwtToken(token);
+            var solicitante = jwt.Subject;
+            var claims = jwt.Claims;
+
+            usuarioServico.VerificaViabilidadeDaRequisicao(claims.ElementAt(2).Value,true,guid,solicitante,"Não é possivel excluir a si mesmo");
+
+            await usuarioServico.VerificaExistenciaUsuarioAsync(guid);
+
+            await usuarioRepositorio.DeletarAsync(guid, cancellation);
+        }
+
+        public async Task<Usuario> AtribuirRoleUsuarioAsync(Guid guid, RoleEnum role, CancellationToken cancellationToken)
+        {
+            try
+            {
+                Usuario usuario = await usuarioServico.VerificaExistenciaUsuarioAsync(guid);
+
+                await usuarioServico.AtribuirRoleUsuarioAsync(usuario, role, cancellationToken);
+
+                return usuario;
+            }
+            catch
+            {
+                throw;
+            }
         }
     }
 }

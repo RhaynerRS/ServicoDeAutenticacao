@@ -22,7 +22,13 @@ namespace Projeto.AuthService.Infra.Usuarios
 
         public async Task InserirAsync(Usuario usuario, CancellationToken cancellationToken = default)
         {
-            await database.InsertOneAsync(usuario, cancellationToken);
+            await database.InsertOneAsync(usuario, cancellationToken:cancellationToken);
+        }
+
+        public async Task EditarAsync(Usuario usuario, CancellationToken cancellationToken = default)
+        {
+            var filtro = Builders<Usuario>.Filter.Eq(u => u.Guid, usuario.Guid);
+            await database.ReplaceOneAsync(filtro, usuario,cancellationToken: cancellationToken);
         }
 
         public async Task<Usuario> BuscarAsync(Guid guid)

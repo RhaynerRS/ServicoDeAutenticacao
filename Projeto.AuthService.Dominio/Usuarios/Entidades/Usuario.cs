@@ -28,6 +28,11 @@ namespace Projeto.AuthService.Dominio.Usuarios.Entidades
 
         public void SetPassword(string password)
         {
+            var pattern = @"^(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{8,}$";
+
+            if(string.IsNullOrWhiteSpace(password) || !Regex.IsMatch(password, pattern))
+                throw new ArgumentException("senha invalida");
+
             Password = BCrypt.Net.BCrypt.HashPassword(password);
         }
 
@@ -35,7 +40,7 @@ namespace Projeto.AuthService.Dominio.Usuarios.Entidades
         {
             var pattern = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
 
-            if (string.IsNullOrWhiteSpace(email) && !Regex.IsMatch(email, pattern, RegexOptions.IgnoreCase))
+            if (string.IsNullOrWhiteSpace(email) || !Regex.IsMatch(email, pattern, RegexOptions.IgnoreCase))
                 throw new ArgumentException("email invalido");
 
             Email = email;

@@ -3,8 +3,9 @@ using Projeto.AuthService.DataTransfer.Usuarios.Request;
 using Projeto.AuthService.Dominio.Usuarios.Entidades;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Projeto.AuthService.Dominio.Usuarios.enumeradores;
 
-namespace Projeto.AuthService.API.Controllers.Usuario
+namespace Projeto.AuthService.API.Controllers.Usuarios
 {
     [ApiController]
     [Route("api/usuario")]
@@ -46,6 +47,28 @@ namespace Projeto.AuthService.API.Controllers.Usuario
         {
             await usuarioAppServico.LogoutUsuarioAsync();
             return Ok("Logout realizado com sucesso.");
+        }
+        
+        /// <summary>
+        /// Exclui um usuário existente.
+        /// </summary>
+        [HttpDelete("{Guid}")]
+        [Authorize(Roles = "AdminRoleUser")]
+        public async Task<IActionResult> DeletaUsuarioAsync([FromRoute]Guid guid, CancellationToken cancellationToken)
+        {
+            await usuarioAppServico.DeletaUsuarioAsync(guid, cancellationToken);
+            return Ok("O usuário foi excluído com sucesso.");
+        }
+        
+        /// <summary>
+        /// Atribui uma nova role a um usuário existente.
+        /// </summary>
+        [HttpPatch("{Guid}")]
+        [Authorize(Roles = "AdminRoleUser")]
+        public async Task<IActionResult> AtribuirRoleUsuarioAsync([FromRoute]Guid guid, [FromQuery] RoleEnum role, CancellationToken cancellationToken)
+        {
+            Usuario usuario = await usuarioAppServico.AtribuirRoleUsuarioAsync(guid,role, cancellationToken);
+            return Ok(usuario);
         }
 
         [HttpGet("validar")]
