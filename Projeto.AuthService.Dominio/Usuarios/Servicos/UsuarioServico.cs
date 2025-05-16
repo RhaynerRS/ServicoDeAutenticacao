@@ -5,6 +5,7 @@ using Projeto.AuthService.Dominio.Usuarios.Repositorios;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Projeto.AuthService.Dominio.Usuarios.Excecoes;
 
 namespace Projeto.AuthService.Dominio.Usuarios.Servicos
 {
@@ -26,7 +27,7 @@ namespace Projeto.AuthService.Dominio.Usuarios.Servicos
             Usuario usuarioEmailRepetido = await usuarioRepositorio.BuscarAsync(u => u.Email, email);
 
             if (usuarioEmailRepetido != null)
-                throw new Exception("E-mail já utilizado por outro usuário!");
+                throw new DuplicidadeDeAtributosExecao("E-mail já utilizado por outro usuário!");
         }
 
         public void VerificaViabilidadeDaRequisicao(string solicitanteRole, bool verificaAutoReferencia=false, Guid? guid=null, string solicitante=null, string mensagemExcecao=null)
@@ -35,7 +36,7 @@ namespace Projeto.AuthService.Dominio.Usuarios.Servicos
                 throw new Exception(mensagemExcecao);
 
             if (solicitanteRole != RoleEnum.AdminRoleUser.ToString())
-                throw new Exception("Usuário solicitante não possui permissão para executar a requisição");
+                throw new PermissaoInsifucienteExcecao("Usuário solicitante não possui permissão para executar a requisição");
         }
 
         public async Task<Usuario> VerificaExistenciaUsuarioAsync(Guid guid)
@@ -51,7 +52,7 @@ namespace Projeto.AuthService.Dominio.Usuarios.Servicos
         public async Task AtribuirRoleUsuarioAsync(Usuario usuario, RoleEnum role, CancellationToken cancellationToken)
         {
             if (usuario.Role == RoleEnum.AdminRoleUser.ToString())
-                throw new Exception("Não é possivel editar as roles de um administrador");
+                throw new PermissaoInsifucienteExcecao("Não é possivel editar as roles de um administrador");
             
             usuario.Role = role.ToString();
             
